@@ -14,6 +14,7 @@ public class MovieCatalogServiceApplication {
 
 	@Bean
 	public RestTemplate getRestTemplate() {
+		System.out.println("Enter done");
 		return new RestTemplate();
 	}
 }
