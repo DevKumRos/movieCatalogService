@@ -1,5 +1,6 @@
 package com.kumar;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,7 +12,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.kumar.model.CatalogItem;
 import com.kumar.model.Movie;
+import com.kumar.model.Rating;
 import com.kumar.model.UserRating;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.ribbon.proxy.annotation.Hystrix;
 
 @RestController
 @RequestMapping("/catalog")
@@ -19,14 +23,17 @@ public class MovieCatalogRestService {
 	
 	   @Autowired
 	    private RestTemplate restTemplate;
+	   
+	   @Autowired
+	   private MovieCatalogFacade movieCatalogFacade;
 
 	    /*@Autowired
 	    WebClient.Builder webClientBuilder;*/
 
 	    @RequestMapping("/{userId}")
-	    public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
-
-	        UserRating userRating = restTemplate.getForObject("http://movie-rating-service/ratingsdata/user/" + userId, UserRating.class);
+	    public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) throws InterruptedException {
+	    	System.out.println("getCatalog --> "+userId);
+	        UserRating userRating = movieCatalogFacade.getUserRating(userId);
 
 	        return userRating.getRatings().stream()
 	                .map(rating -> {
@@ -36,6 +43,8 @@ public class MovieCatalogRestService {
 	                .collect(Collectors.toList());
 
 	    }
+	    
+	    
 
 }
 
